@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useContacts } from '@/contexts/ContactContext';
 import Pagination from '@/components/Pagination';
@@ -10,26 +10,19 @@ const PAGE_SIZE_OPTIONS = [20, 50, 100];
 
 export default function ContactListPage() {
   const { t } = useLanguage();
-  const { contacts, deleteContact } = useContacts();
+  const { contacts, total, totalPages, loading, fetchContacts, deleteContact } = useContacts();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
 
-  const filteredContacts = useMemo(() => {
-    if (searchQuery.length < 3) return contacts;
-    const query = searchQuery.toLowerCase();
-    return contacts.filter(
-      (c) =>
-        `${c.firstName} ${c.lastName}`.toLowerCase().includes(query) ||
-        c.firstName.toLowerCase().includes(query) ||
-        c.lastName.toLowerCase().includes(query)
-    );
-  }, [contacts, searchQuery]);
+  const loadContacts = useCallback(() => {
+    const search = searchQuery.length >= 3 ? searchQuery : undefined;
+    fetchContacts(currentPage, pageSize, search);
+  }, [fetchContacts, currentPage, pageSize, searchQuery]);
 
-  const totalPages = Math.ceil(filteredContacts.length / pageSize);
-  const startIndex = (currentPage - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const currentContacts = filteredContacts.slice(startIndex, endIndex);
+  useEffect(() => {
+    loadContacts();
+  }, [loadContacts]);
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
@@ -41,13 +34,11 @@ export default function ContactListPage() {
     setCurrentPage(1);
   };
 
-  const handleDelete = (id: string) => {
-    deleteContact(id);
-    // If current page is now empty, go back
-    const newTotal = Math.ceil((filteredContacts.length - 1) / pageSize);
-    if (currentPage > newTotal && newTotal > 0) {
-      setCurrentPage(newTotal);
-    }
+  const handleDelete = async (id: string) => {
+    await deleteContact(id);
+    // Refresh the list
+    const search = searchQuery.length >= 3 ? searchQuery : undefined;
+    fetchContacts(currentPage, pageSize, search);
   };
 
   const handlePageSizeChange = (newSize: number) => {
@@ -60,11 +51,13 @@ export default function ContactListPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const startIndex = (currentPage - 1) * pageSize;
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
         <h1 className={styles.title}>{t.contactList.title}</h1>
-        <span className={styles.badge}>{filteredContacts.length}</span>
+        <span className={styles.badge}>{total}</span>
       </div>
 
       {/* Search Bar */}
@@ -94,12 +87,12 @@ export default function ContactListPage() {
       </div>
 
       {/* Toolbar: Results Info + Page Size */}
-      {filteredContacts.length > 0 && (
+      {total > 0 && (
         <div className={styles.toolbar}>
           <div className={styles.resultsInfo}>
             {t.contactList.showing} {startIndex + 1} {t.contactList.to}{' '}
-            {Math.min(endIndex, filteredContacts.length)} {t.contactList.of}{' '}
-            {filteredContacts.length} {t.contactList.entries}
+            {Math.min(startIndex + contacts.length, total)} {t.contactList.of}{' '}
+            {total} {t.contactList.entries}
           </div>
           <div className={styles.pageSizeSelector}>
             <label htmlFor="pageSize" className={styles.pageSizeLabel}>
@@ -120,8 +113,15 @@ export default function ContactListPage() {
         </div>
       )}
 
+      {/* Loading */}
+      {loading && (
+        <div className={styles.loading}>
+          <div className={styles.loadingSpinner} />
+        </div>
+      )}
+
       {/* Contact Table / Cards */}
-      {currentContacts.length > 0 ? (
+      {!loading && contacts.length > 0 ? (
         <>
           {/* Desktop Table */}
           <div className={styles.tableWrapper}>
@@ -135,7 +135,7 @@ export default function ContactListPage() {
                 </tr>
               </thead>
               <tbody>
-                {currentContacts.map((contact, index) => (
+                {contacts.map((contact, index) => (
                   <tr key={contact.id} className={styles.row}>
                     <td className={styles.rowNum}>{startIndex + index + 1}</td>
                     <td>
@@ -170,7 +170,7 @@ export default function ContactListPage() {
 
           {/* Mobile Cards */}
           <div className={styles.cardList}>
-            {currentContacts.map((contact, index) => (
+            {contacts.map((contact, index) => (
               <div key={contact.id} className={styles.card}>
                 <div className={styles.cardTop}>
                   <div className={styles.cardAvatar}>
@@ -207,14 +207,14 @@ export default function ContactListPage() {
             ofLabel={t.contactList.of}
           />
         </>
-      ) : (
+      ) : !loading ? (
         <div className={styles.empty}>
           <svg viewBox="0 0 24 24" fill="currentColor" className={styles.emptyIcon}>
             <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
           </svg>
           <p>{t.contactList.noResults}</p>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

@@ -11,7 +11,7 @@ import styles from './page.module.css';
 export default function HomePage() {
   const { t } = useLanguage();
   const { profile } = useProfile();
-  const { contacts } = useContacts();
+  const { total } = useContacts();
 
   return (
     <div className={styles.page}>
@@ -35,7 +35,7 @@ export default function HomePage() {
             </svg>
           </div>
           <div className={styles.statInfo}>
-            <span className={styles.statNumber}>{contacts.length}</span>
+            <span className={styles.statNumber}>{total}</span>
             <span className={styles.statLabel}>{t.home.totalContacts}</span>
           </div>
         </div>

@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ContactApp — Full-Stack Contact Management
 
-## Getting Started
+A full-stack contact management application built as a coding test.
 
-First, run the development server:
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Next.js 16, React, TypeScript, CSS Modules |
+| Backend | NestJS, Node.js, TypeScript |
+| Database | MongoDB (Mongoose ODM) |
+| Auth | JWT (Passport.js + bcrypt) |
+| DevOps | Docker Compose |
+
+## Features
+
+- ✅ **Bilingual UI** (EN/TH) with context-based i18n
+- ✅ **Responsive** (desktop + mobile)
+- ✅ **JWT Authentication** with login/register
+- ✅ **Default Admin** account (`admin@contactapp.com` / `P@ssw0rd`)
+- ✅ **Profile Management** — editable profile picture + name
+- ✅ **Contact CRUD** — create, list, search, delete
+- ✅ **Server-side Pagination** — 20/50/100 page size options
+- ✅ **Search** — starts at 3+ characters, with clear button
+- ✅ **Validation** — letters only (EN + TH), no spaces, age 1-150
+- ✅ **Navigation** — sidebar with hamburger toggle, footer with contact links
+- ✅ **Current Location** — opens Google Maps with geolocation
+
+## Quick Start (Docker Compose)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker-compose up --build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+This starts:
+- **MongoDB** on port `27017`
+- **NestJS Backend** on port `4000`
+- **Next.js Frontend** on port `3000`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open http://localhost:3000 and login with:
+```
+Email:    admin@contactapp.com
+Password: P@ssw0rd
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local Development
 
-## Learn More
+### Backend
+```bash
+cd backend
+npm install
+# Start MongoDB locally first
+npm run start:dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Frontend
+```bash
+npm install
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API Endpoints
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth/login` | ❌ | Login |
+| POST | `/api/auth/register` | ❌ | Register |
+| GET | `/api/users/profile` | ✅ | Get profile |
+| PATCH | `/api/users/profile` | ✅ | Update profile |
+| GET | `/api/contacts?page=1&limit=20&search=xxx` | ✅ | List contacts |
+| POST | `/api/contacts` | ✅ | Create contact |
+| DELETE | `/api/contacts/:id` | ✅ | Delete contact |
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+├── docker-compose.yml        # Docker orchestration
+├── Dockerfile                # Frontend container
+├── src/                      # Next.js frontend
+│   ├── app/                  # Pages (Home, Login, Contact List/Create)
+│   ├── components/           # Navbar, Sidebar, Footer, Modal, etc.
+│   ├── contexts/             # Auth, Language, Profile, Contact
+│   ├── services/             # API client
+│   └── i18n/                 # Translations
+└── backend/                  # NestJS backend
+    ├── Dockerfile
+    └── src/
+        ├── auth/             # JWT login/register
+        ├── users/            # Profile CRUD
+        ├── contacts/         # Contacts CRUD
+        └── seed/             # Default admin + 100 contacts
+```

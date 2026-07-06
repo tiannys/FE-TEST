@@ -2,8 +2,9 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useAuth } from '@/contexts/AuthContext';
 import ProfilePicture from './ProfilePicture';
 import styles from './Navbar.module.css';
 
@@ -14,7 +15,13 @@ interface NavbarProps {
 
 export default function Navbar({ onToggleSidebar, isSidebarOpen }: NavbarProps) {
   const { t, language, toggleLanguage } = useLanguage();
-  const { profile } = useProfile();
+  const { user, logout } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout();
+    router.push('/login');
+  };
 
   return (
     <nav className={styles.navbar}>
@@ -54,9 +61,17 @@ export default function Navbar({ onToggleSidebar, isSidebarOpen }: NavbarProps) 
         <div className={styles.profileSection}>
           <ProfilePicture size="small" editable={true} />
           <span className={styles.profileName}>
-            {profile.firstName} {profile.lastName}
+            {user?.firstName} {user?.lastName}
           </span>
         </div>
+
+        <button className={styles.logoutBtn} onClick={handleLogout} title={t.nav.logout}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.logoutIcon}>
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+        </button>
       </div>
     </nav>
   );

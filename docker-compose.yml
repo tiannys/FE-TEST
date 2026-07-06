@@ -1,0 +1,37 @@
+services:
+  mongodb:
+    image: mongo:7
+    container_name: contactapp-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
+  backend:
+    build: ./backend
+    container_name: contactapp-backend
+    ports:
+      - "4000:4000"
+    depends_on:
+      - mongodb
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/contactapp
+      - JWT_SECRET=contactapp-jwt-secret-key-2024
+      - PORT=4000
+      - CORS_ORIGIN=http://localhost:3000
+    restart: unless-stopped
+
+  frontend:
+    build: .
+    container_name: contactapp-frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:4000/api
+    restart: unless-stopped
+
+volumes:
+  mongo-data:

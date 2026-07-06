@@ -63,7 +63,7 @@ export default function CreateContactPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validate()) {
@@ -71,7 +71,7 @@ export default function CreateContactPage() {
       return;
     }
 
-    const success = addContact({
+    const success = await addContact({
       firstName: firstName.trim(),
       lastName: lastName.trim(),
       age: Number(age),
