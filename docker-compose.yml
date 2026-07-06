@@ -30,9 +30,9 @@ services:
     depends_on:
       - backend
     environment:
-      # NEXT_PUBLIC_API_URL จะถูก inject ตอน build — ถ้าไม่ set จะ fallback ไปที่ /api (relative)
-      # สำหรับ deploy บนเครื่องอื่น ให้ set: NEXT_PUBLIC_API_URL=http://<HOST_IP>:4000/api
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:4000/api}
+      # BACKEND_URL ใช้ใน Next.js server-side เพื่อ proxy /api/* → backend
+      # ใช้ Docker service name โดยตรง — ไม่ต้องรู้ IP เลย
+      - BACKEND_URL=http://backend:4000
     restart: unless-stopped
 
 volumes:
