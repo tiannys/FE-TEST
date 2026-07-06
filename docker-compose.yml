@@ -19,7 +19,7 @@ services:
       - MONGODB_URI=mongodb://mongodb:27017/contactapp
       - JWT_SECRET=contactapp-jwt-secret-key-2024
       - PORT=4000
-      - CORS_ORIGIN=http://localhost:3000,http://192.168.1.140:3000
+      - CORS_ORIGIN=*
     restart: unless-stopped
 
   frontend:
@@ -30,7 +30,9 @@ services:
     depends_on:
       - backend
     environment:
-      - NEXT_PUBLIC_API_URL=http://192.168.1.140:4000/api
+      # NEXT_PUBLIC_API_URL จะถูก inject ตอน build — ถ้าไม่ set จะ fallback ไปที่ /api (relative)
+      # สำหรับ deploy บนเครื่องอื่น ให้ set: NEXT_PUBLIC_API_URL=http://<HOST_IP>:4000/api
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:4000/api}
     restart: unless-stopped
 
 volumes:

@@ -13,16 +13,14 @@ async function bootstrap() {
   app.use(bodyParser.json({ limit: '10mb' }));
   app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
 
-  const allowedOrigins = (
-    process.env.CORS_ORIGIN || 'http://localhost:3000'
-  )
-    .split(',')
-    .map((o) => o.trim());
+  const corsOriginEnv = process.env.CORS_ORIGIN || 'http://localhost:3000';
+  const allowAll = corsOriginEnv.trim() === '*';
+  const allowedOrigins = corsOriginEnv.split(',').map((o) => o.trim());
 
   app.enableCors({
     origin: (origin, callback) => {
-      // Allow requests with no origin (e.g. curl, mobile apps)
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (e.g. curl, mobile apps) or when CORS_ORIGIN=*
+      if (!origin || allowAll || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error(`CORS: origin ${origin} not allowed`));
@@ -40,7 +38,8 @@ async function bootstrap() {
   );
 
   const port = process.env.PORT || 4000;
-  await app.listen(port);
-  console.log(`🚀 Backend running on http://localhost:${port}`);
+  const host = '0.0.0.0';
+  await app.listen(port, host);
+  console.log(`🚀 Backend running on http://${host}:${port} (accessible from all interfaces)`);
 }
 bootstrap();

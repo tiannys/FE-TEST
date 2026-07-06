@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: ["192.168.1.140", "localhost"],
+  // รับทุก origin ใน dev mode — ไม่ต้อง hardcode IP
+  allowedDevOrigins: ["*"],
 };
 
 export default nextConfig;
