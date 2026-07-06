@@ -51,15 +51,16 @@ export class SeedService implements OnModuleInit {
 
     this.logger.log(`✅ Admin created: admin@contactapp.com / P@ssw0rd`);
 
-    // Generate 100 random contacts
+    // Generate 100 random contacts — same language for first & last name
     const contacts: { firstName: string; lastName: string; age: number }[] = [];
-    const allFirstNames = [...THAI_FIRST_NAMES, ...ENGLISH_FIRST_NAMES];
-    const allLastNames = [...THAI_LAST_NAMES, ...ENGLISH_LAST_NAMES];
 
     for (let i = 0; i < 100; i++) {
+      const isThai = Math.random() < 0.5;
+      const firstNames = isThai ? THAI_FIRST_NAMES : ENGLISH_FIRST_NAMES;
+      const lastNames  = isThai ? THAI_LAST_NAMES  : ENGLISH_LAST_NAMES;
       contacts.push({
-        firstName: allFirstNames[Math.floor(Math.random() * allFirstNames.length)],
-        lastName: allLastNames[Math.floor(Math.random() * allLastNames.length)],
+        firstName: firstNames[Math.floor(Math.random() * firstNames.length)],
+        lastName:  lastNames[Math.floor(Math.random() * lastNames.length)],
         age: Math.floor(Math.random() * 60) + 18,
       });
     }

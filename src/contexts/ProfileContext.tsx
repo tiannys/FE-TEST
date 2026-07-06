@@ -53,12 +53,16 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   };
 
   const updateProfileImage = async (image: string | null) => {
+    const previous = profile.profileImage;
     setProfile(prev => ({ ...prev, profileImage: image }));
     try {
       await usersApi.updateProfile({ profileImage: image || undefined });
       updateUser({ profileImage: image } as any);
-    } catch {
-      // Revert on error
+    } catch (err) {
+      // Revert on error so UI stays consistent with DB
+      setProfile(prev => ({ ...prev, profileImage: previous }));
+      console.error('Failed to save profile image:', err);
+      alert('Failed to save profile image. Please try again.');
     }
   };
 

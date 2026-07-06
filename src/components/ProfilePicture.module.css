@@ -81,3 +81,39 @@
 .fileInput {
   display: none;
 }
+
+/* Wrapper: stacks avatar + hint vertically */
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Hint text below the avatar */
+.hint {
+  text-align: center;
+  min-height: 18px;
+}
+
+.hintText {
+  font-size: 0.72rem;
+  color: var(--text-muted, #9ca3af);
+  letter-spacing: 0.01em;
+}
+
+.hintError {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  color: #ef4444;
+  font-weight: 500;
+  animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25%       { transform: translateX(-4px); }
+  75%       { transform: translateX(4px); }
+}
